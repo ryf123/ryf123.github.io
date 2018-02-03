@@ -6,8 +6,8 @@
 - name: Python
   href: /python/
 
-- name: Linux
-  href: /linux/
+- name: Tensorflow
+  href: /tensorflow/
 
 - name: HTML
   href: /html/
