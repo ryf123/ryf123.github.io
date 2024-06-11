@@ -12,6 +12,7 @@ permalink: /404.html
     <style>
         body { margin: 0; }
         canvas { display: block; }
+        button { position: absolute; top: 20px; left: 20px; z-index: 10; }
     </style>
 </head>
 <body>
@@ -26,11 +27,15 @@ permalink: /404.html
                     button.style.top = '20px';
                     button.style.left = '20px';
                     button.onclick = () => {
-                        navigator.xr.requestSession('immersive-vr').then(onSessionStarted);
+                        navigator.xr.requestSession('immersive-vr').then(onSessionStarted).catch(console.error);
                     };
                     document.body.appendChild(button);
+                } else {
+                    console.log('Immersive VR not supported');
                 }
-            });
+            }).catch(console.error);
+        } else {
+            console.log('WebXR not supported by your browser');
         }
 
         let renderer, scene, camera, cube;
@@ -43,9 +48,9 @@ permalink: /404.html
             document.body.appendChild(renderer.domElement);
 
             function animate() {
-                cube.rotation.x += 0.01;
-                cube.rotation.y += 0.01;
                 renderer.setAnimationLoop(() => {
+                    cube.rotation.x += 0.01;
+                    cube.rotation.y += 0.01;
                     renderer.render(scene, camera);
                 });
             }
@@ -62,6 +67,8 @@ permalink: /404.html
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.xr.enabled = true;
 
+            document.body.appendChild(renderer.domElement);
+
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.z = 5;
@@ -76,4 +83,5 @@ permalink: /404.html
     </script>
 </body>
 </html>
+
 
