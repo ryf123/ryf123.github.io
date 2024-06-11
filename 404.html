@@ -4,29 +4,76 @@ title: 404
 permalink: /404.html
 ---
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 Error</title>
-    <!-- Mainly CSS -->
-    <link href="{{ "/static/assets/app-20180125.min.css" | prepend: site.baseurl }}" rel="stylesheet">
-    <link href="{{ "/static/css/custom.css" | prepend: site.baseurl }}" rel="stylesheet">
+    <title>WebXR Demo</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
 </head>
-<body class="gray-bg">
-    <div class="middle-box text-center animated fadeInDown">
-        <h1>404</h1>
-        <h3 class="font-bold">Page Not Found</h3>
-        <div class="error-desc">
-            <p>
-            Sorry, but the page you are looking for has not been found. Try checking the URL for error, then hit the refresh button on your browser or try found something else in my website.
-            </p>
-            <div>
-                <a class="btn btn-primary" href="{{ "/" | prepend: site.baseurl }}">Home</a>
-            </div>
-        </div>
-    </div>
-    <!-- Mainly scripts -->
-    <script src="{{"/static/assets/app-20180125.min.js"| prepend: site.baseurl }}"></script>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        if (navigator.xr) {
+            navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+                if (supported) {
+                    let button = document.createElement('button');
+                    button.textContent = 'Enter VR';
+                    button.style.position = 'absolute';
+                    button.style.top = '20px';
+                    button.style.left = '20px';
+                    button.onclick = () => {
+                        navigator.xr.requestSession('immersive-vr').then(onSessionStarted);
+                    };
+                    document.body.appendChild(button);
+                }
+            });
+        }
+
+        let renderer, scene, camera, cube;
+
+        function onSessionStarted(session) {
+            session.addEventListener('end', onSessionEnded);
+
+            renderer.xr.setSession(session);
+
+            document.body.appendChild(renderer.domElement);
+
+            function animate() {
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
+                renderer.setAnimationLoop(() => {
+                    renderer.render(scene, camera);
+                });
+            }
+
+            animate();
+        }
+
+        function onSessionEnded(event) {
+            document.body.removeChild(renderer.domElement);
+        }
+
+        function init() {
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.xr.enabled = true;
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            let geometry = new THREE.BoxGeometry();
+            let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+        }
+
+        init();
+    </script>
 </body>
 </html>
+
